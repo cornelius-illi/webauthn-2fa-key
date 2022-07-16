@@ -26,7 +26,7 @@ body {
   font-family: Roboto, sans-serif;
   --green-light: #00c200;
   --red-dark: #d70000;
-  --theme-primary: #9200ad;
+  --theme-primary: #213a7e;
 }
 
 /* TYPOGRAPHY */
@@ -94,7 +94,7 @@ input {
 
 button,
 input.button {
-  background: #9200ad;
+  background: #213a7e;
   font-family: Roboto;
   text-transform: uppercase;
   box-shadow: 0px 3px 1px -2px rgb(0 0 0 / 20%),

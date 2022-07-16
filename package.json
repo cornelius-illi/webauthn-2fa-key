@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "build": "webpack -p",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "@babel/core": "^7.11.6",
@@ -33,7 +34,7 @@
     "webpack-cli": "^3.3.12"
   },
   "engines": {
-    "node": "14.x"
+    "node": "^18.4.0"
   },
   "repository": {
     "url": "https://github.com/googlecodelabs/fido2-codelab"
@@ -43,5 +44,8 @@
     "node",
     "glitch",
     "express"
-  ]
+  ],
+  "devDependencies": {
+    "nodemon": "^2.0.19"
+  }
 }
