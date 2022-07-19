@@ -44,7 +44,8 @@ db.defaults({
 
 // WebAuthn settings
 const authSettings = Object.freeze({
-  RP_NAME: "webauthn-security-key-codelab",
+  RP_NAME: "bahnid-webauthn-codelab",
+  RP_ID: (process.env.NODE_ENV === 'development') ? "localhost" : process.env.HOSTNAME,
   FIDO_TIMEOUT: 30 * 1000 * 60,
   // Use "cross-platform" for roaming keys
   AUTHENTICATOR_ATTACHEMENT: "cross-platform",
@@ -68,6 +69,7 @@ const authStatuses = Object.freeze({
 // Generic message, because an attacker should not be able to determine that a password was correct by looking at the error messages
 const GENERIC_AUTH_ERROR_MESSAGE =
   "Username or password incorrect or credential not found or user verification failed";
+
 
 // ----------------------------------------------------------------------------
 // Utils
@@ -320,7 +322,7 @@ router.post("/two-factor-options", csrfCheck, async (req, res) => {
     }
     const options = fido2.generateAssertionOptions({
       timeout: authSettings.FIDO_TIMEOUT,
-      rpID: process.env.HOSTNAME,
+      rpID: authSettings.RP_ID,
       allowCredentials,
       // userVerification is an optional value that controls whether or not the authenticator needs be able to uniquely
       // identify the user interacting with it (via built-in PIN pad, fingerprint scanner, etc...)
@@ -357,7 +359,7 @@ router.post("/authenticate-two-factor", csrfCheck, async (req, res) => {
   const { body } = req;
   const { credential: credentialFromClient } = body;
   const expectedOrigin = getOrigin(req.get("User-Agent"));
-  const expectedRPID = process.env.HOSTNAME;
+  const expectedRPID = authSettings.RP_ID;
   const {
     username,
     isPasswordCorrect,
@@ -553,7 +555,7 @@ router.post(
     const { body } = req;
     const { id: credId, transports, credProps } = body;
     const expectedOrigin = getOrigin(req.get("User-Agent"));
-    const expectedRPID = process.env.HOSTNAME;
+    const expectedRPID = authSettings.RP_ID;
 
     try {
       // Verify the user via fido
@@ -563,6 +565,7 @@ router.post(
         expectedOrigin,
         expectedRPID
       });
+
       const { verified, authenticatorInfo } = verification;
       if (!verified) {
         return res.status(400).json({ error: "User verification failed" });
@@ -665,7 +668,7 @@ router.post(
 
       const options = fido2.generateAttestationOptions({
         rpName: authSettings.RP_NAME,
-        rpID: process.env.HOSTNAME,
+        rpID: authSettings.RP_ID,
         userID: user.id,
         userName: username,
         timeout: authSettings.FIDO_TIMEOUT,

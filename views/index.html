@@ -70,7 +70,10 @@
       <script type="module">
         import { _fetch, authStatuses } from "/auth.client.js";
         
-        // 📍📍📍 ADD if(!window.PublicKeyCredential) CODE HERE 📍📍📍
+        // Display a banner in browsers that don't support WebAuthn
+        if (!window.PublicKeyCredential) {
+          document.querySelector('#warningbanner').classList.remove('invisible');
+        }
 
         // Listen to form submission
         const form = document.querySelector("#form");
@@ -94,8 +97,11 @@
             if (authStatus === authStatuses.COMPLETE) {
               // Navigate to the Account page
               location.href = "/account";
+              // authStatuses.NEED_SECOND_FACTOR means the user has set up two-factor-auth and has not entered a second actor yet
+            } else if (authStatus === authStatuses.NEED_SECOND_FACTOR) {
+              // Navigate to the 2FA page to get the second facto
+              location.href = "/second-factor";
             }
-            // 📍📍📍 ADD 2FA CONDITIONAL NAVIGATION CODE HERE 📍📍📍
           } catch (e) {
             // If something went wrong, empty the form, for convenience
             form.reset();

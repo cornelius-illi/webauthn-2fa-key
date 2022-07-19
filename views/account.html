@@ -43,10 +43,14 @@
       </h3>
       {{ username }}
       <div class="flex-h-between">
-        <!-- 📍📍📍 ADD 2FA SECTION TITLE HERE 📍📍📍 -->
-        <!-- 📍📍📍 ADD BUTTON HERE 📍📍📍 -->
+        <h3>
+            Two-factor authentication
+        </h3>
+        <button class="create" id="registerButton" raised>
+            ➕ Add a credential
+        </button>
       </div>
-      <!-- 📍📍📍 ADD CREDENTIALS DIV HERE 📍📍📍 -->
+      <div id="credentials"></div>
     </main>
     <script type="module">
       import {
@@ -58,24 +62,72 @@
       import { getCredentialListHtml } from "/templates.js";
       import { render } from "https://unpkg.com/lit-html@1.0.0/lit-html.js?module";
 
-      // 📍📍📍 ADD updateCredentialList CALL HERE 📍📍📍
+      // Initialize the credential list by updating it once on page load
+      updateCredentialList();
 
       // Set up the handler for the button that registers credentials
-      // 📍📍📍 ADD registerButton CODE HERE 📍📍📍
+      const registerButton = document.querySelector('#registerButton');
+      registerButton.addEventListener('click', register);
 
       // Register a credential
       async function register() {
-        // 📍📍📍 ADD CODE HERE 📍📍📍
+        let user = {};
+        try {
+          const user = await registerCredential();
+          // Get the latest credential's ID (newly created credential)
+          const allUserCredentials = user.credentials;
+          const newCredential = allUserCredentials[allUserCredentials.length - 1];
+          // Rename it
+          await rename(newCredential.credId);
+        } catch (e) {
+          // Alert the user that something went wrong
+          if (Array.isArray(e)) {
+            alert(
+              // `msg` not `message`, this is the key's name as per the express validator API
+              `Registration failed. ${e.map((err) => `${err.msg} (${err.param})`)}`
+            );
+          } else {
+            alert(`Registration failed. ${e}`);
+          }
+        }
+
+        // Refresh the credential list to display the new credential
+        await updateCredentialList();
       }
 
       // Rename a credential
       async function rename(credentialId) {
-        // 📍📍📍 ADD CODE HERE 📍📍📍
+        // Let the user input a new name
+        const newName = window.prompt(`Name this credential:`);
+        // Rename only if the user didn't cancel AND didn't enter an empty name
+        if (newName && newName.trim()) {
+          try {
+            // Make the backend call to rename the credential (the name is sanitized) server-side
+            await renameCredential(credentialId, newName);
+          } catch (e) {
+            // Alert the user that something went wrong
+            if (Array.isArray(e)) {
+              alert(
+                // `msg` not `message`, this is the key's name as per the express validator API
+                `Renaming failed. ${e.map((err) => `${err.msg} (${err.param})`)}`
+              );
+            } else {
+              alert(`Renaming failed. ${e}`);
+            }
+          }
+          // Refresh the credential list to display the new name
+          await updateCredentialList();
+        }
       }
 
       // Rename a credential via HTML element
       async function renameEl(el) {
-        // 📍📍📍 ADD CODE HERE 📍📍📍
+        // Define the ID of the credential to update
+        const credentialId = el.srcElement.dataset.credentialId;
+        // Rename the credential
+        await rename(credentialId);
+        // Refresh the credential list to display the new name
+        await updateCredentialList();
       }
 
       // Remove a credential via HTML element
@@ -90,8 +142,19 @@
 
       // Update the list that displays credentials
       async function updateCredentialList() {
-        // 📍📍📍 ADD CODE HERE 📍📍📍
-      }
+        // Fetch the latest credential list from the backend
+        const response = await _fetch('/auth/credentials', 'GET');
+        const credentials = response.credentials || [];
+        // Generate the credential list as HTML and pass remove/rename functions as args
+        const credentialListHtml = getCredentialListHtml(
+          credentials,
+          removeEl,
+          renameEl
+        );
+        // Display the list of credentials in the DOM
+        const list = document.querySelector('#credentials');
+        render(credentialListHtml, list);
+      }    
     </script>
   </body>
 </html>

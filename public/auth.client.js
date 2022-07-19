@@ -49,23 +49,32 @@ async function _fetch(path, method, payload = "") {
 async function registerCredential() {
   // Fetch the credential creation options from the backend
   const credentialCreationOptionsFromServer = await _fetch(
-    "/auth/credential-options",
-    "POST"
+    '/auth/credential-options',
+    'POST'
   );
   // Decode the credential creation options
   const credentialCreationOptions = decodeServerOptions(
     credentialCreationOptionsFromServer
   );
-  // Create a credential via the browser API; this will prompt the user to touch their security key or tap a button on their phone
+  // Create a credential via the browser API; this will prompt the user
   const credential = await navigator.credentials.create({
     publicKey: {
       ...credentialCreationOptions,
-    }
+      extensions: {
+        credProps: true,
+      },
+    },
   });
   // Encode the newly created credential to send it to the backend
   const encodedCredential = encodeCredential(credential);
+  // Set transports and credProps for more advanced user flows
+  if (credential.response.getTransports) {
+    encodedCredential.transports = credential.response.getTransports();
+  }
+  encodedCredential.credProps =
+    credential.getClientExtensionResults().credProps;
   // Send the encoded credential to the backend for storage
-  return await _fetch("/auth/credential", "POST", encodedCredential);
+  return await _fetch('/auth/credential', 'POST', encodedCredential);
 }
 
 async function renameCredential(credId, newName) {
@@ -84,7 +93,20 @@ async function removeCredential(credId) {
 }
 
 async function authenticateTwoFactor() {
-  // 📍📍📍 ADD CODE HERE 📍📍📍
+  // Fetch the 2F options from the backend
+  const optionsFromServer = await _fetch("/auth/two-factor-options", "POST");
+  // Decode them
+  const decodedOptions = decodeServerOptions(optionsFromServer);
+  // Get a credential via the browser API; this will prompt the user to touch their security key or tap a button on their phone
+  const credential = await navigator.credentials.get({
+    publicKey: decodedOptions
+  });
+  // Encode the credential
+  const encodedCredential = encodeCredential(credential);
+  // Send it to the backend for verification
+  return await _fetch("/auth/authenticate-two-factor", "POST", {
+    credential: encodedCredential
+  });
 }
 
 export {

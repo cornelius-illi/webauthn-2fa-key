@@ -15,6 +15,8 @@
  * limitations under the License
  */
 
+require('dotenv').config()
+
 const express = require("express");
 const session = require("express-session");
 const hbs = require("hbs");
@@ -34,6 +36,18 @@ app.use(express.json());
 app.use(express.static(__dirname + "/public"));
 app.use(express.static("dist"));
 
+let cookieSettings;
+if(process.env.NODE_ENV === 'development') {
+  cookieSettings = {};
+}
+else { 
+  cookieSettings = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none"
+  }
+}
+
 app.use(
   session({
     // Specify a real secret here
@@ -41,11 +55,7 @@ app.use(
     resave: true,
     saveUninitialized: false,
     proxy: true,
-    cookie: {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none"
-    }
+    cookie: cookieSettings
   })
 );
 

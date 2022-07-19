@@ -56,8 +56,20 @@ function getCredentialHtml(credential, removeEl, renameEl) {
             `}
       </div>
       <div class="creation-date">
+        <label>Created:</label>
+        <div class="info">
+          ${new Date(creationDate).toLocaleDateString()}
+          ${new Date(creationDate).toLocaleTimeString()}
+        </div>
       </div>
       <div class="flex-end">
+        <button
+          data-credential-id="${credId}"
+          @click="${renameEl}"
+          class="secondary right"
+        >
+          Rename
+        </button>
         <button
           data-credential-id="${credId}"
           @click="${removeEl}"

@@ -49,7 +49,23 @@
     <script type="module">
       import { authenticateTwoFactor, authStatuses } from "/auth.client.js";
 
-      // 📍📍📍 ADD authenticateButton CODE HERE 📍📍📍
+      const button = document.querySelector("#authenticateButton");
+      button.addEventListener("click", async e => {
+        try {
+          // Ask the user to authenticate with the second factor; this will trigger a browser prompt
+          const response = await authenticateTwoFactor();
+          const { authStatus } = response;
+          if (authStatus === authStatuses.COMPLETE) {
+            // The user is properly authenticated => Navigate to the Account page
+            location.href = "/account";
+          } else {
+            throw new Error("Two-factor authentication failed");
+          }
+        } catch (e) {
+          // Alert the user that something went wrong
+          alert(`Two-factor authentication failed. ${e}`);
+        }
+      });
     </script>
   </body>
 </html>
