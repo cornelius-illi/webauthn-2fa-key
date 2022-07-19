@@ -36,6 +36,12 @@ app.use(express.json());
 app.use(express.static(__dirname + "/public"));
 app.use(express.static("dist"));
 
+// Favicon
+var favicon = require('serve-favicon');
+app.use(favicon(__dirname + '/public/images/favicon.ico'));
+
+
+// Environment Config
 let cookieSettings;
 if(process.env.NODE_ENV === 'development') {
   cookieSettings = {};
