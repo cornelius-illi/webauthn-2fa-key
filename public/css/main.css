@@ -3781,6 +3781,145 @@ a:active .db-logo__db rect, button:active .db-logo__db rect {
   vertical-align: top;
 }
 
+.db-link {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  font-family: DB Screen Sans, Arial, Helvetica Neue, Helvetica, sans-serif;
+  font-size: inherit;
+  margin: 0;
+  padding: 0;
+}
+.db-link svg {
+  rotate: 0deg;
+}
+
+.db-link--icon {
+  display: inline-flex;
+  gap: 4px;
+  white-space: nowrap;
+}
+.db-link--icon::before {
+  content: " ";
+  width: 0;
+  margin-right: -0.25em;
+}
+.db-link--icon .db-icon:first-child {
+  margin-left: -2px;
+}
+.db-link--icon .db-icon:last-child {
+  margin-right: -2px;
+}
+
+.db-link__icon-arrow {
+  margin: 0 -3px;
+}
+
+.db-link--primary {
+  /**
+   * 1. 0.11 needed for Firefox
+   */
+  outline: 0;
+}
+.db-link--primary span {
+  border-radius: 0.15em;
+  margin-left: -0.2em;
+  margin-right: -0.2em;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
+  box-shadow: transparent 0 0 0 0, transparent 0 0 0 8px;
+  transition: box-shadow 0.3s;
+  will-change: transform; /* 1 */
+}
+.db-link--primary:focus span {
+  box-shadow: var(--db-primary-background-color) 0 0 0 0, var(--db-focus-ring-color) 0 0 0 3px;
+  outline: 2px transparent; /* 2 */
+}
+.db-link--primary, .db-link--primary:any-link {
+  color: var(--db-link-color);
+  text-decoration-line: none;
+  text-underline-offset: 0.11em; /* 1 */
+  text-decoration-thickness: 1px;
+}
+.db-link--primary span, .db-link--primary:any-link span {
+  font-weight: 550;
+  text-decoration-line: underline;
+  text-decoration-color: var(--db-link-underline-color);
+}
+.db-link--primary:hover span {
+  color: var(--db-link-hover-color);
+  text-decoration-color: unset;
+}
+.db-link--primary:active span {
+  color: var(--db-link-pressed-color);
+}
+.db-link--primary:focus span {
+  text-decoration-color: transparent;
+}
+
+.db-link--secondary,
+.db-link--mixed {
+  /**
+   * 1. 0.11 needed for Firefox
+   */
+  outline: 0;
+}
+.db-link--secondary span,
+.db-link--mixed span {
+  border-radius: 0.15em;
+  margin-left: -0.2em;
+  margin-right: -0.2em;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
+  box-shadow: transparent 0 0 0 0, transparent 0 0 0 8px;
+  transition: box-shadow 0.3s;
+  will-change: transform; /* 1 */
+}
+.db-link--secondary:focus span,
+.db-link--mixed:focus span {
+  box-shadow: var(--db-primary-background-color) 0 0 0 0, var(--db-focus-ring-color) 0 0 0 3px;
+  outline: 2px transparent; /* 2 */
+}
+.db-link--secondary, .db-link--secondary:any-link,
+.db-link--mixed,
+.db-link--mixed:any-link {
+  color: var(--db-primary-text-color);
+  text-decoration-line: none;
+  text-underline-offset: 0.11em; /* 1 */
+  text-decoration-thickness: 1px;
+}
+.db-link--secondary span, .db-link--secondary:any-link span,
+.db-link--mixed span,
+.db-link--mixed:any-link span {
+  font-weight: 550;
+  text-decoration-line: underline;
+  text-decoration-color: var(--db-secondary-link-underline-color);
+}
+.db-link--secondary:hover span,
+.db-link--mixed:hover span {
+  color: var(--db-link-color);
+  text-decoration-color: unset;
+}
+.db-link--secondary:active span,
+.db-link--mixed:active span {
+  color: var(--db-link-hover-color);
+}
+.db-link--secondary:focus span,
+.db-link--mixed:focus span {
+  text-decoration-color: transparent;
+}
+
+.db-link:disabled, .db-link:disabled:hover, .db-link:disabled:active,
+.db-link:disabled span {
+  color: var(--db-disabled-text-color);
+  cursor: default;
+  text-decoration-color: transparent;
+}
+
+.db-link--mixed svg {
+  color: var(--db-link-color);
+}
+
 .db-headline {
   color: var(--db-primary-text-color);
   display: inherit;
@@ -3816,6 +3955,180 @@ a:active .db-logo__db rect, button:active .db-logo__db rect {
 .db-body b,
 .db-body strong {
   font-weight: 700;
+}
+
+.db-notification {
+  font-size: 14px;
+  font-size: 0.875rem;
+  line-height: 1.4285714286;
+  font-weight: normal;
+  font-family: "DB Screen Sans", "Arial", "Helvetica Neue", "Helvetica", sans-serif;
+  align-items: center;
+  display: flex;
+  flex-flow: row nowrap;
+  padding: 8px 24px;
+  color: var(--db-primary-text-color);
+  background-color: var(--db-primary-background-color);
+  border: solid var(--db-primary-background-color) 4px;
+  border-radius: 4px;
+}
+@media (min-width: 768px) {
+  .db-notification {
+    font-size: 14px;
+    font-size: 0.875rem;
+    line-height: 1.4285714286;
+  }
+}
+
+.db-notification + .db-notification {
+  margin-top: 16px;
+}
+
+.db-notification__icon {
+  padding: 2px;
+  margin: -8px 2px -8px -22px;
+  align-self: start;
+}
+
+.db-notification__severity {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  pointer-events: none;
+  position: absolute;
+  width: 1px;
+}
+
+.db-notification__icon svg,
+.db-notification__close-icon svg {
+  rotate: 0deg;
+  display: block;
+  fill: currentColor;
+}
+
+.db-notification__content {
+  font-size: 16px;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: normal;
+  font-family: "DB Screen Sans", "Arial", "Helvetica Neue", "Helvetica", sans-serif;
+  font-weight: inherit;
+  padding: 2px 0;
+  text-align: left;
+  flex-grow: 1;
+}
+@media (min-width: 768px) {
+  .db-notification__content {
+    font-size: 16px;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+.db-notification__title {
+  display: block;
+  font-weight: bold;
+}
+
+.db-notification--global {
+  border-radius: 4px;
+  border-width: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  min-width: 384px;
+  border-color: white;
+}
+
+.db-notification--informative {
+  --db-primary-background-color: #dbeefa;
+  --db-darker-background-color: #c5d6e1;
+  --db-secondary-button-background-color: #dbeefa;
+  --db-secondary-button-hover-background-color: #c5d6e1;
+  --db-secondary-button-pressed-background-color: #afbec8;
+  --db-solid-button-background-color: #c5d6e1;
+  --db-solid-button-hover-background-color: #afbec8;
+  --db-solid-button-pressed-background-color: #99a7af;
+}
+
+.db-notification--warning,
+.db-notification--error {
+  --db-primary-background-color: #fcfcb8;
+  --db-darker-background-color: #e3e3a6;
+  --db-secondary-button-background-color: #fcfcb8;
+  --db-secondary-button-hover-background-color: #e3e3a6;
+  --db-secondary-button-pressed-background-color: #caca93;
+  --db-solid-button-background-color: #e3e3a6;
+  --db-solid-button-hover-background-color: #caca93;
+  --db-solid-button-pressed-background-color: #b0b081;
+}
+
+.db-notification--error {
+  color: #c70012;
+}
+
+.db-notification--success {
+  --db-primary-background-color: #e1f1d0;
+  --db-darker-background-color: #cbd9bb;
+  --db-secondary-button-background-color: #e1f1d0;
+  --db-secondary-button-hover-background-color: #cbd9bb;
+  --db-secondary-button-pressed-background-color: #b4c1a6;
+  --db-solid-button-background-color: #cbd9bb;
+  --db-solid-button-hover-background-color: #b4c1a6;
+  --db-solid-button-pressed-background-color: #9ea992;
+}
+
+.db-notification__action {
+  margin-left: 16px;
+  white-space: nowrap;
+}
+.db-notification__action + .db-notification__close-btn {
+  margin-left: 16px;
+}
+
+.db-notification__close-btn {
+  align-self: flex-start;
+  margin-top: 13px;
+}
+
+@media (max-width: 767px) {
+  .db-notification {
+    display: grid;
+    grid-template-areas: "icon content close" "icon action close";
+    grid-template-columns: 0fr 1fr 0fr;
+    grid-template-rows: 1fr 0fr;
+  }
+  .db-notification__icon {
+    grid-area: icon;
+  }
+  .db-notification__close-btn {
+    grid-area: close;
+  }
+  .db-notification__action {
+    grid-area: action;
+    margin: 8px 0 0;
+  }
+  .db-notification__action + .db-notification__close-btn {
+    margin-left: 0;
+  }
+}
+/**
+ * 1. Preserve a comfortably readable line length of the messages.
+ *    We don't set a (min)-width as we want the notifications
+ *    to take up only the miminmal amount of the space necessary to
+ *    not block interactions with large parts of the site.
+ */
+.db-notification-portal {
+  position: fixed;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 64rem; /* 1 */
+  padding: 16px;
 }
 
 .outer-container {
@@ -3913,9 +4226,37 @@ input:-webkit-autofill:active {
   margin-bottom: 1.5rem;
 }
 
+.button-container-left {
+  width: 100%;
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-account-container {
+  height: 3.25rem;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--db-border-color);
+}
+
+.dashboard-container {
+  margin-right: 2rem;
+  margin-left: 2rem;
+}
+
+.credential-card {
+  border-radius: 4px;
+  border: 1px solid var(--db-border-color);
+  padding: 16px;
+}
+
+.credential-buttons-container {
+  margin-top: 1rem;
+}
+
 @media screen and (min-width: 48rem) {
   .outer-container {
-    width: 415px;
+    width: 500px;
     margin: max(2rem, (100vh - 40.625rem) / 6) auto 2rem;
     border: solid 1px var(--db-border-color);
   }

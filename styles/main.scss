@@ -4,8 +4,10 @@
 @import '../node_modules/@db-design/styles/components/logo.scss';
 @import '../node_modules/@db-design/styles/components/layout.scss';
 @import '../node_modules/@db-design/styles/components/icon.scss';
+@import '../node_modules/@db-design/styles/components/link.scss';
 @import '../node_modules/@db-design/styles/components/headline.scss';
 @import '../node_modules/@db-design/styles/components/body.scss';
+@import '../node_modules/@db-design/styles/components/notification.scss';
 
 .outer-container {
     display: flex;
@@ -102,9 +104,37 @@ input:-webkit-autofill:active {
   margin-bottom: 1.5rem;
 }
 
+.button-container-left {
+  width: 100%;
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-account-container {
+  height: 3.25rem;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--db-border-color);
+}
+
+.dashboard-container {
+  margin-right: 2rem;
+  margin-left: 2rem;
+}
+
+.credential-card {
+  border-radius: 4px;
+  border: 1px solid var(--db-border-color);
+  padding: 16px;
+}
+
+.credential-buttons-container {
+  margin-top: 1rem;
+}
+
 @media screen and (min-width: 48rem) {
   .outer-container {
-    width: 415px;
+    width: 500px;
     margin: max(2rem, (100vh - 40.625rem) / 6) auto 2rem;
     border: solid 1px var(--db-border-color);
   }
