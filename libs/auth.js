@@ -251,7 +251,7 @@ router.post(
   "/initialize-authentication",
   check("username")
     .notEmpty()
-    .isAlphanumeric()
+    .isEmail()
     .escape(),
   check("password")
     .notEmpty()

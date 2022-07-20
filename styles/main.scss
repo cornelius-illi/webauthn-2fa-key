@@ -1,0 +1,115 @@
+@import '../node_modules/@db-design/styles/global.scss';
+@import '../node_modules/@db-design/styles/components/button.scss';
+@import '../node_modules/@db-design/styles/components/textfield.scss';
+@import '../node_modules/@db-design/styles/components/logo.scss';
+@import '../node_modules/@db-design/styles/components/layout.scss';
+@import '../node_modules/@db-design/styles/components/icon.scss';
+@import '../node_modules/@db-design/styles/components/headline.scss';
+@import '../node_modules/@db-design/styles/components/body.scss';
+
+.outer-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 0px auto;
+    background: var(--db-primary-background-color);
+    border-radius: 8px;
+}
+
+.header {
+  position: relative;
+  padding: 8px 0px;
+  box-shadow: none;
+  top: 0px;
+  background: var(--db-primary-background-color);
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  z-index: 50;
+  padding: 6px 0px;
+  border-radius: 8px 8px 0px 0px;
+  border-bottom: 1px solid var(--db-border-color);
+}
+
+.header-container {
+  display: flex;
+  flex: 1 1 0%;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: end;
+  justify-content: flex-end;
+  padding: 0px 0.75rem 0px 1.5rem;
+  position: relative;
+}
+
+.logo-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.illustration-container {
+  display: block;
+  margin: 25px auto;
+  width: 130px;
+  height: 130px;
+}
+
+.spacer-container {
+  display: block;
+  margin: 0px auto;
+  width: 24px;
+  height: 24px;
+}
+
+.form-container {
+  display: inherit;
+  flex-direction: inherit;
+  margin: 0px auto;
+  padding: 0px 1.5rem;
+}
+
+.formfield-container {
+  margin-bottom: 1rem;
+}
+
+.formfield-container > div {
+  flex: 1 1 0%;
+  width: 100%;
+}
+
+.db-textfield > label {
+  flex: 1 1 auto;
+}
+
+.db-textfield input {
+  width: 90%;
+  margin-top: -4px;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.button-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+@media screen and (min-width: 48rem) {
+  .outer-container {
+    width: 415px;
+    margin: max(2rem, (100vh - 40.625rem) / 6) auto 2rem;
+    border: solid 1px var(--db-border-color);
+  }
+
+  .header-container {
+    padding: 0px 1.25rem 0px 2rem
+  }
+}
