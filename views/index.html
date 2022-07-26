@@ -95,8 +95,19 @@
             </div>
           </div>
         </form>
+        <form id="passkey">
+          <hr/>
+          <div class="passkey-option">OR</div>
+          <div class="button-container">
+            <button id="passKeyButton" class="db-button db-button--primary db-button--default db-button--size-l">
+              Login w/ Passkey
+            </button>
+          </div>
+        </form>
         <script type="module">
           import { _fetch, authStatuses } from "/auth.client.js";
+          import { decodeServerOptions, encodeCredential } from "./encoding.js";
+
           
           // Display a banner in browsers that don't support WebAuthn
           if (!window.PublicKeyCredential) {
@@ -127,6 +138,45 @@
           });
           passwordField.addEventListener('blur', (event) => {
             switch_filled(passwordField);
+          });
+
+
+          async function authenticateTwoFactorPasskey() {
+            // Fetch the 2F options from the backend
+            const optionsFromServer = await _fetch("/auth/two-factor-options-passkey", "POST");
+            // Decode them
+            const decodedOptions = decodeServerOptions(optionsFromServer);
+            // Get a credential via the browser API; this will prompt the user to touch their security key or tap a button on their phone
+            const credential = await navigator.credentials.get({
+              publicKey: decodedOptions
+            });
+            // Encode the credential
+            const encodedCredential = encodeCredential(credential);
+            // Send it to the backend for verification
+            return await _fetch("/auth/authenticate-via-passkey", "POST", {
+              credential: encodedCredential
+          });
+        }
+
+          // Listen to form submission
+          const passKeyButton = document.querySelector("#passKeyButton");
+          passKeyButton.addEventListener("click", async e => {
+            e.preventDefault();
+
+            try {
+              // Ask the user to authenticate with the second factor; this will trigger a browser prompt
+              const response = await authenticateTwoFactorPasskey();
+              const { authStatus } = response;
+              if (authStatus === authStatuses.COMPLETE) {
+                // The user is properly authenticated => Navigate to the Account page
+                location.href = "/account";
+              } else {
+                throw new Error("Two-factor authentication failed");
+              }
+            } catch (e) {
+              // Alert the user that something went wrong
+              alert(`Two-factor authentication failed. ${e}`);
+            }
           });
 
           // Listen to form submission

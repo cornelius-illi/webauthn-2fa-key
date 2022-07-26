@@ -64,6 +64,20 @@
   height: 24px;
 }
 
+form#passkey {
+  margin-top: 30px;
+}
+
+.passkey-option {
+  position: relative;
+  margin: 0 auto;
+  padding: 12px;
+  background: white;
+  top: -30px;
+  width: 60px;
+  text-align: center;
+}
+
 .form-container {
   display: inherit;
   flex-direction: inherit;

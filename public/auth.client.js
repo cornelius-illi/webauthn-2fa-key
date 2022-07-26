@@ -57,6 +57,7 @@ async function registerCredential() {
     credentialCreationOptionsFromServer
   );
   // Create a credential via the browser API; this will prompt the user
+  console.log(credentialCreationOptions);
   const credential = await navigator.credentials.create({
     publicKey: {
       ...credentialCreationOptions,

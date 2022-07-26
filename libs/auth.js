@@ -23,6 +23,8 @@ const base64url = require("base64url");
 const fs = require("fs");
 const low = require("lowdb");
 const { check, validationResult } = require("express-validator");
+const platform = require('platform');
+
 
 if (!fs.existsSync("./.data")) {
   fs.mkdirSync("./.data");
@@ -47,11 +49,11 @@ const authSettings = Object.freeze({
   RP_NAME: "bahnid-webauthn-codelab",
   RP_ID: (process.env.NODE_ENV === 'development') ? "localhost" : process.env.HOSTNAME,
   FIDO_TIMEOUT: 30 * 1000 * 60,
-  // Use "cross-platform" for roaming keys
-  AUTHENTICATOR_ATTACHEMENT: "cross-platform",
-  RESIDENT_KEY: "preferred",
-  REQUIRE_RESIDENT_KEY: false,
-  USER_VERIFICATION: "preferred"
+  // Use "cross-platform" for roaming keys and "platform" for device authenticators
+  AUTHENTICATOR_ATTACHEMENT: "platform",
+  RESIDENT_KEY: "required", // ('required'|'preferred'|'discouraged'),
+  REQUIRE_RESIDENT_KEY: true,
+  USER_VERIFICATION: "preferred" // ('required'|'preferred'|'discouraged'),
 });
 
 // Authentication types
@@ -131,6 +133,13 @@ function findUserByUsername(username) {
   return db
     .get("users")
     .find({ username })
+    .value();
+}
+
+function findUserById(id) {
+  return db
+    .get("users")
+    .find({ id })
     .value();
 }
 
@@ -311,14 +320,21 @@ router.post(
 router.post("/two-factor-options", csrfCheck, async (req, res) => {
   try {
     const user = findUserByUsername(req.session.username);
+    // Note: here "preferred" might deliberately be used to not logout users that previously registered one without
     const userVerification = "preferred";
     const allowCredentials = [];
     for (let cred of user.credentials) {
-      allowCredentials.push({
+      let credential = {
         id: cred.credId,
         type: "public-key",
         transports: cred.transports || []
-      });
+      }
+
+      if(platform.name === 'Safari') {
+        credential["transports"] = [];
+      }
+      
+      allowCredentials.push(credential);
     }
     const options = fido2.generateAssertionOptions({
       timeout: authSettings.FIDO_TIMEOUT,
@@ -337,6 +353,46 @@ router.post("/two-factor-options", csrfCheck, async (req, res) => {
     });
   }
 });
+
+/**
+ * Get options that are required to call navigator.credential.get()
+ *
+ * Input:
+ * req.body: similar format as output
+ *
+ * Response:
+ * {
+     challenge: String,
+     userVerification: String, // ('required'|'preferred'|'discouraged'),
+     allowCredentials: [{
+       id: String,
+       type: 'public-key',
+       transports: String[], // One or several of https://www.w3.org/TR/webauthn-2/#dom-publickeycredentialdescriptor-transports 
+     }, ...]
+ * }```
+ **/
+     router.post("/two-factor-options-passkey", csrfCheck, async (req, res) => {
+      try {
+        // required given that otherwise another factor would be needed.
+        const userVerification = "required";
+        const allowCredentials = [];
+        const options = fido2.generateAssertionOptions({
+          timeout: authSettings.FIDO_TIMEOUT,
+          rpID: authSettings.RP_ID,
+          allowCredentials,
+          // userVerification is an optional value that controls whether or not the authenticator needs be able to uniquely
+          // identify the user interacting with it (via built-in PIN pad, fingerprint scanner, etc...)
+          userVerification
+        });
+        req.session.challenge = options.challenge;
+    
+        res.status(200).json(options);
+      } catch (e) {
+        res.status(400).json({
+          error: `Getting two-factor authentication options failed: ${GENERIC_AUTH_ERROR_MESSAGE}`
+        });
+      }
+    });
 
 /**
  * Authenticate the user
@@ -405,6 +461,83 @@ router.post("/authenticate-two-factor", csrfCheck, async (req, res) => {
     res.status(400).json({ error: e.message });
   }
 });
+
+/**
+ * Authenticate the user
+ *
+ * Input:
+ * req.body.credential:
+ * {
+     id: String,
+     type: String, // E,g. 'public-key'
+     rawId: String,
+     response: {
+       clientDataJSON: String,
+       authenticatorData: String,
+       signature: String,
+       userHandle: String
+     }
+ * }
+ **/
+    router.post("/authenticate-via-passkey", csrfCheck, async (req, res) => {
+      const { body } = req;
+      const { credential: credentialFromClient } = body;
+      const expectedOrigin = getOrigin(req.get("User-Agent"));
+      const expectedRPID = authSettings.RP_ID;
+      const { challenge: expectedChallenge } = req.session;
+      
+      const userId = credentialFromClient.response.userHandle;
+      const user = findUserById(userId);
+
+      if(!user) {
+        res.status(401).json({
+          error: `Authentication failed: User not found`
+        });
+
+        return; 
+      }
+
+      let credentialFromServer = user.credentials.find(
+        cred => cred.credId === credentialFromClient.id
+      );
+      if (!credentialFromServer) {
+        res.status(401).json({
+          error: `Authentication failed: ${GENERIC_AUTH_ERROR_MESSAGE}`
+        });
+
+        return;
+      }
+      try {
+        const verification = fido2.verifyAssertionResponse({
+          credential: credentialFromClient,
+          expectedChallenge,
+          expectedOrigin,
+          expectedRPID,
+          authenticator: credentialFromServer
+        });
+        const { verified, authenticatorInfo } = verification;
+        if (!verified) {
+          res.status(401).json({
+            error: `Authentication failed: ${GENERIC_AUTH_ERROR_MESSAGE}`
+          });
+        }
+        
+        // write last used
+        credentialFromServer['lastUsedDate'] = Date.now();
+        const username = user.username;
+        req.session.username = username
+        
+        // TODO: bypass, only true if userVerification = required
+        req.session.isPasswordCorrect = true;
+
+        updateUser(username, user);
+        delete req.session.challenge;
+        completeAuthentication(req, res);
+      } catch (e) {
+        delete req.session.challenge;
+        res.status(400).json({ error: e.message });
+      }
+    });
 
 // ----------------------------------------------------------------------------
 // Credential management
@@ -681,7 +814,7 @@ router.post(
         // Prevent user from re-registering existing authenticators
         excludeCredentials,
         authenticatorSelection: {
-          authenticatorAttachment: authSettings.AUTHENTICATOR_ATTACHEMENT,
+          //authenticatorAttachment: authSettings.AUTHENTICATOR_ATTACHEMENT,
           residentKey: authSettings.RESIDENT_KEY,
           requireResidentKey: authSettings.REQUIRE_RESIDENT_KEY,
           userVerification: authSettings.USER_VERIFICATION
