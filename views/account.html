@@ -165,6 +165,12 @@
         // Fetch the latest credential list from the backend
         const response = await _fetch('/auth/credentials', 'GET');
         const credentials = response.credentials || [];
+
+        // sort credentials based on usage
+        credentials.sort((cred1, cred2) => {
+          return compareObjects(cred1, cred2, 'lastUsedDate')
+        }).reverse();
+
         // Generate the credential list as HTML and pass remove/rename functions as args
         const credentialListHtml = getCredentialListHtml(
           credentials,
@@ -174,7 +180,20 @@
         // Display the list of credentials in the DOM
         const list = document.querySelector('#credentials');
         render(credentialListHtml, list);
-      }    
+      } 
+
+      function compareObjects(object1, object2, key) {
+        const obj1 = object1[key];
+        const obj2 = object2[key];
+
+        if (obj1 < obj2) {
+          return -1
+        }
+        if (obj1 > obj2) {
+          return 1
+        }
+        return 0
+      }
     </script>
   </body>
 </html>

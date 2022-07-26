@@ -4248,6 +4248,7 @@ input:-webkit-autofill:active {
   border-radius: 4px;
   border: 1px solid var(--db-border-color);
   padding: 16px;
+  margin-bottom: 16px;
 }
 
 .credential-buttons-container {

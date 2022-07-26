@@ -48,7 +48,7 @@ const getTitleHtml = credentialsCount => html`
 `;
 
 function getCredentialHtml(credential, removeEl, renameEl) {
-  const { name, credId, publicKey, creationDate } = credential;
+  const { name, credId, publicKey, creationDate, lastUsedDate } = credential;
   return html`
     <div class="credential-card">
       <div class="credential-name">
@@ -60,6 +60,14 @@ function getCredentialHtml(credential, removeEl, renameEl) {
           : html`
               <span class="unnamed">(Unnamed)</span>
             `}
+        </span>
+      </div>
+      <div class="creation-date">
+        <span class="db-body db-fs4 t:db-fs4 d:db-fs4 db-body--secondary">
+          <div class="info">Last Used: 
+            ${(lastUsedDate) ? new Date(lastUsedDate).toLocaleDateString() : "never used"}
+            ${(lastUsedDate) ? new Date(lastUsedDate).toLocaleTimeString() : ""}
+          </div>
         </span>
       </div>
       <div class="creation-date">

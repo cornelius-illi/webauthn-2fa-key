@@ -393,6 +393,10 @@ router.post("/authenticate-two-factor", csrfCheck, async (req, res) => {
         error: `Authentication failed: ${GENERIC_AUTH_ERROR_MESSAGE}`
       });
     }
+    
+    // write last used
+    credentialFromServer['lastUsedDate'] = Date.now();
+    // update user
     updateUser(username, user);
     delete req.session.challenge;
     completeAuthentication(req, res);
@@ -587,7 +591,8 @@ router.post(
           // the credential isn't given a name upon creation
           name: "",
           transports: transports || [],
-          creationDate: Date.now()
+          creationDate: Date.now(),
+          lastUsedDate: Date.now()
         };
         // Add the "is resident key" info if available i.e. if the client has supplied credProps
         if (credProps) {
