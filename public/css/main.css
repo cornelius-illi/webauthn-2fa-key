@@ -4193,7 +4193,7 @@ form#passkey {
 .passkey-option {
   position: relative;
   margin: 0 auto;
-  padding: 12px;
+  padding: 12px 12px 0px 12px;
   background: white;
   top: -30px;
   width: 60px;

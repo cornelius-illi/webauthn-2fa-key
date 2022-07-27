@@ -51,7 +51,7 @@ const authSettings = Object.freeze({
   FIDO_TIMEOUT: 30 * 1000 * 60,
   // Use "cross-platform" for roaming keys and "platform" for device authenticators
   AUTHENTICATOR_ATTACHEMENT: "platform",
-  RESIDENT_KEY: "required", // ('required'|'preferred'|'discouraged'),
+  RESIDENT_KEY: "preferred", // ('required'|'preferred'|'discouraged'),
   REQUIRE_RESIDENT_KEY: true,
   USER_VERIFICATION: "preferred" // ('required'|'preferred'|'discouraged'),
 });
@@ -452,6 +452,7 @@ router.post("/authenticate-two-factor", csrfCheck, async (req, res) => {
     
     // write last used
     credentialFromServer['lastUsedDate'] = Date.now();
+    credentialFromServer['counter'] = authenticatorInfo.counter;
     // update user
     updateUser(username, user);
     delete req.session.challenge;
@@ -524,9 +525,10 @@ router.post("/authenticate-two-factor", csrfCheck, async (req, res) => {
         
         // write last used
         credentialFromServer['lastUsedDate'] = Date.now();
+        credentialFromServer['counter'] = authenticatorInfo.counter;
+       
         const username = user.username;
-        req.session.username = username
-        
+        req.session.username = username        
         // TODO: bypass, only true if userVerification = required
         req.session.isPasswordCorrect = true;
 
@@ -703,7 +705,7 @@ router.post(
         expectedRPID
       });
 
-      const { verified, authenticatorInfo } = verification;
+      const { verified, userVerified, authenticatorInfo } = verification;
       if (!verified) {
         return res.status(400).json({ error: "User verification failed" });
       }
@@ -712,7 +714,7 @@ router.post(
       if (!validationErrors.isEmpty()) {
         return res.status(400).json({ error: validationErrors.array() });
       }
-      const { base64PublicKey, base64CredentialID } = authenticatorInfo;
+      const { base64PublicKey, base64CredentialID, counter } = authenticatorInfo;
       const user = findUserByUsername(username);
       const existingCred = user.credentials.find(
         cred => cred.credID === base64CredentialID
@@ -725,7 +727,9 @@ router.post(
           name: "",
           transports: transports || [],
           creationDate: Date.now(),
-          lastUsedDate: Date.now()
+          lastUsedDate: Date.now(),
+          counter: counter,
+          userVerified: userVerified
         };
         // Add the "is resident key" info if available i.e. if the client has supplied credProps
         if (credProps) {

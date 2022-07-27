@@ -57,7 +57,6 @@ async function registerCredential() {
     credentialCreationOptionsFromServer
   );
   // Create a credential via the browser API; this will prompt the user
-  console.log(credentialCreationOptions);
   const credential = await navigator.credentials.create({
     publicKey: {
       ...credentialCreationOptions,
@@ -100,7 +99,7 @@ async function authenticateTwoFactor() {
   const decodedOptions = decodeServerOptions(optionsFromServer);
   // Get a credential via the browser API; this will prompt the user to touch their security key or tap a button on their phone
   const credential = await navigator.credentials.get({
-    publicKey: decodedOptions
+    publicKey: decodedOptions,
   });
   // Encode the credential
   const encodedCredential = encodeCredential(credential);
